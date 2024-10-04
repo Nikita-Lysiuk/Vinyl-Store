@@ -1,0 +1,5 @@
+{"level":"info","message":"Server is running on port 3000"}
+{"level":"error","message":"Invalid request. GET /"}
+{"level":"info","message":"New health check request. GET /health"}
+{"level":"info","message":"Server is running on port 3000"}
+{"level":"info","message":"New health check request. GET /health"}
