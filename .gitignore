@@ -1,2 +1,13 @@
-/node_modules
+node_modules/
 .env
+
+.husky/_
+
+.vscode/
+.idea/
+
+dist/
+build/
+
+app.log
+error.log
