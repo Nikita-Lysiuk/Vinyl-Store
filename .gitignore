@@ -11,3 +11,7 @@ build/
 
 app.log
 error.log
+
+posts.json
+users.json
+backup.json
