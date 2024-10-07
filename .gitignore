@@ -9,8 +9,7 @@ node_modules/
 dist/
 build/
 
-app.log
-error.log
+*.log
 
 posts.json
 users.json
