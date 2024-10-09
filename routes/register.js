@@ -17,9 +17,14 @@ router.post('/register', (req, res) => {
         return res.status(400).send('Invalid email.');
     }
 
-    if (!firstName || !lastName || !email || !password) {
-        return res.status(400).send('All input is required.');
-    }
+    if (!firstName || firstName.length < 3) 
+        return res.status(400).send('First name is required and should be at least 3 characters long.');
+
+    if (!lastName || lastName.length < 3)
+        return res.status(400).send('Last name is required and should be at least 3 characters long.');
+
+    if (!password || password.length < 8)
+        return res.status(400).send('Password is required and should be at least 8 characters long.');
 
     let salt = 10;
     let hashedPassword = bcrypt.hashSync(password, salt);
@@ -28,23 +33,29 @@ router.post('/register', (req, res) => {
     let user = { id, firstName, lastName, email, password: hashedPassword };
 
     try {
-        const usersData = fs.readFileSync(PATH, 'utf8');
-        if (usersData.find((u) => u.email === email)) {
-            return res.status(400).send('User already exists.');
-        }
+        const readStream = fs.createReadStream(PATH, { encoding: 'utf8' });
 
         let users = [];
-        if (usersData) {
-            users = JSON.parse(usersData);
-        }
 
-        users.push(user);
+        readStream.on('data', (data) => {
+            users.push(data);
+        });
 
-        const stream = fs.createWriteStream(PATH, { flags: 'w' });
-        stream.write(JSON.stringify(users));
-        stream.end();
+        readStream.on('end', () => {
+            users = JSON.parse(users.join(''));
+            users.push(user);
 
-        res.status(201).send('User registered successfully.');
+            const stream = fs.createWriteStream(PATH, { flags: 'w' });
+            stream.write(JSON.stringify(users));
+            stream.end();
+            res.status(201).send('User registered successfully.');
+        });
+
+        readStream.on('error', (err) => {
+            logger.error(`An error occurred. ${err}`);
+            res.status(500).send('An error occurred. Please try again later.');
+        });
+
     } catch (err) {
         logger.error(`An error occurred. ${err}`);
         res.status(500).send('An error occurred. Please try again later.');

@@ -4,13 +4,12 @@ import fs from 'fs';
 
 dotenv.config();
 const router = express.Router();
-const POST_PATH = process.env.POST_DATA_PATH;
-const USER_PATH = process.env.USER_DATA_PATH;
+const PATH = process.env.POST_DATA_PATH;
 
-router.get('/get-post', (req, res) => {
-    const id = req.id;
+router.get('/post', (req, res) => {
+    const userId = req.id;
 
-    const readPostStream = fs.createReadStream(POST_PATH, { encoding: 'utf8' });
+    const readPostStream = fs.createReadStream(PATH, { encoding: 'utf8' });
     let posts = [];
 
     readPostStream.on('data', (data) => {
@@ -23,39 +22,22 @@ router.get('/get-post', (req, res) => {
             return res.status(404).send('No posts found.');
         }
 
-        const readUserStream = fs.createReadStream(USER_PATH, {
-            encoding: 'utf8',
-        });
-        let users = [];
+        posts = posts
+            .filter((post) => post.userId === userId)
+            .map((post) => {
+                return {
+                    title: post.title,
+                    description: post.description,
+                    date: post.date,
+                    authorName: post.authorName,
+                }
+            });
 
-        readUserStream.on('data', (data) => {
-            users.push(data);
-        });
-
-        readUserStream.on('end', () => {
-            users = JSON.parse(users.join(''));
-            const user = users.find((u) => u.id === id);
-            if (!user) {
-                return res.status(404).send('User not found.');
-            }
-
-            const response = {
-                authorName: `${user.firstName} ${user.lastName}`,
-                posts: posts.map((post) => {
-                    return {
-                        title: post.title,
-                        description: post.description,
-                        date: post.date,
-                    };
-                }),
-            };
-
-            res.status(200).send(response);
-        });
-
-        readUserStream.on('error', (err) => {
-            res.status(500).send('An error occurred. Please try again later.');
-        });
+        if (!posts.length) {
+            return res.status(404).send('No posts found.');
+        }
+        
+        res.status(200).send(posts);
     });
 
     readPostStream.on('error', (err) => {

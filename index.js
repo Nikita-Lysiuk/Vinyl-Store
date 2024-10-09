@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import logger from './logger.js';
-import authMiddleware from './middleware/authMiddleware.js';
+import authMiddleware from './middleware/auth-middleware.js';
 import {
     healthRouter,
     registerRouter,
