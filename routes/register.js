@@ -17,14 +17,26 @@ router.post('/register', (req, res) => {
         return res.status(400).send('Invalid email.');
     }
 
-    if (!firstName || firstName.length < 3) 
-        return res.status(400).send('First name is required and should be at least 3 characters long.');
+    if (!firstName || firstName.length < 3)
+        return res
+            .status(400)
+            .send(
+                'First name is required and should be at least 3 characters long.'
+            );
 
     if (!lastName || lastName.length < 3)
-        return res.status(400).send('Last name is required and should be at least 3 characters long.');
+        return res
+            .status(400)
+            .send(
+                'Last name is required and should be at least 3 characters long.'
+            );
 
     if (!password || password.length < 8)
-        return res.status(400).send('Password is required and should be at least 8 characters long.');
+        return res
+            .status(400)
+            .send(
+                'Password is required and should be at least 8 characters long.'
+            );
 
     let salt = 10;
     let hashedPassword = bcrypt.hashSync(password, salt);
@@ -55,7 +67,6 @@ router.post('/register', (req, res) => {
             logger.error(`An error occurred. ${err}`);
             res.status(500).send('An error occurred. Please try again later.');
         });
-
     } catch (err) {
         logger.error(`An error occurred. ${err}`);
         res.status(500).send('An error occurred. Please try again later.');

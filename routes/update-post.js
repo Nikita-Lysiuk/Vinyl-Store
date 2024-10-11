@@ -14,13 +14,19 @@ router.put('/post/:id', (req, res) => {
         return res.status(400).send('Post ID is required.');
     }
 
-    if (!userId) {
-        return res.status(400).send('User ID is required.');
-    }
+    if (!title || title.length < 3)
+        return res
+            .status(400)
+            .send(
+                'Title is required and should be at least 3 characters long.'
+            );
 
-    if (!title && !description) {
-        return res.status(400).send('Title or description is required.');
-    }
+    if (!description || description.length < 10)
+        return res
+            .status(400)
+            .send(
+                'Description is required and should be at least 10 characters long.'
+            );
 
     const readStream = fs.createRead(PATH, { encoding: 'utf8' });
     let posts = [];
@@ -32,19 +38,21 @@ router.put('/post/:id', (req, res) => {
     readStream.on('end', () => {
         posts = JSON.parse(posts.join(''));
 
-        const post = posts.find((post) => post.id === id && post.userId === userId);
+        const post = posts.find(
+            (post) => post.id === id && post.userId === userId
+        );
         if (!post) {
             return res.status(404).send('Post not found.');
         }
 
         posts = posts.map((post) => {
             if (post.id === id && post.userId === userId) {
-                post.title = title || post.title;
-                post.description = description || post.description;
-            } 
+                post.title = title;
+                post.description = description;
+            }
         });
 
-        const writeStream = fs.createWriteStream(PATH, { encoding: 'utf8' });   
+        const writeStream = fs.createWriteStream(PATH, { encoding: 'utf8' });
         writeStream.write(JSON.stringify(posts, null, 2));
         writeStream.end();
 

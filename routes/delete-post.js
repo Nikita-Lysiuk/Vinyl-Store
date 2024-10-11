@@ -13,10 +13,6 @@ router.delete('post/:id', (req, res) => {
         return res.status(400).send('Post ID is required.');
     }
 
-    if (!userId) {
-        return res.status(400).send('User ID is required.');
-    }
-
     const readStream = fs.createReadStream(PATH, { encoding: 'utf8' });
     let posts = [];
 
@@ -27,12 +23,16 @@ router.delete('post/:id', (req, res) => {
     readStream.on('end', () => {
         posts = JSON.parse(posts.join(''));
 
-        const post = posts.find((post) => post.id === id && post.userId === userId);
+        const post = posts.find(
+            (post) => post.id === id && post.userId === userId
+        );
         if (!post) {
             return res.status(404).send('Post not found.');
         }
 
-        posts = posts.filter((post) => post.id !== id && post.userId === userId);
+        posts = posts.filter(
+            (post) => post.id !== id && post.userId === userId
+        );
 
         const writeStream = fs.createWriteStream(PATH, { encoding: 'utf8' });
         writeStream.write(JSON.stringify(posts, null, 2));

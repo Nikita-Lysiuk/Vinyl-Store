@@ -38,10 +38,6 @@ router.put('/profile', async (req, res) => {
     const { firstName, lastName } = req.body;
     const id = req.id;
 
-    if (!id) {
-        return res.status(400).send('User ID is required.');
-    }
-
     if (!firstName && !lastName) {
         return res.status(400).send('First name or last name is required.');
     }

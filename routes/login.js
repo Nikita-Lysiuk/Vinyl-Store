@@ -12,11 +12,15 @@ const PATH = process.env.USER_DATA_PATH;
 router.post('/login', (req, res) => {
     let { email, password } = req.body;
 
-    if (!email || validator.isEmail(email)) 
+    if (!email || validator.isEmail(email))
         return res.status(400).send('Invalid email.');
 
     if (!password || password.length < 8)
-        return res.status(400).send('Password is required and should be at least 8 characters long.');
+        return res
+            .status(400)
+            .send(
+                'Password is required and should be at least 8 characters long.'
+            );
 
     try {
         const stream = fs.createReadStream(PATH, { encoding: 'utf8' });
@@ -35,7 +39,10 @@ router.post('/login', (req, res) => {
                     bcrypt.compareSync(password, u.password)
             );
 
-            if (!user) return res.status(400).send('Your email or password is incorrect.');
+            if (!user)
+                return res
+                    .status(400)
+                    .send('Your email or password is incorrect.');
 
             let token = jwt.sign({ id: user.id }, process.env.SECRET_KEY, {
                 expiresIn: '24h',
