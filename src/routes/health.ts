@@ -1,12 +1,16 @@
 import logger from '../logger.js';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import fs from 'fs';
+
+interface PackageJson {
+    version: string;
+}
 
 const router = express.Router();
 
-const jpackage = JSON.parse(fs.readFileSync('../package.json', 'utf8'));
+const jpackage: PackageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 
-router.get('/health', (req, res) => {
+router.get('/health', (req: Request, res: Response) => {
     logger.info(`New health check request. ${req.method} ${req.url}`);
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('X-Powered-By', 'Node.js');
@@ -16,4 +20,4 @@ router.get('/health', (req, res) => {
     res.json({ version: jpackage.version });
 });
 
-export default router;
+export { router as healthRouter };
