@@ -1,14 +1,18 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { MyLoggerService } from './common/logger.service';
+import { HealthModule } from './health/health.module';
+import { UsersModule } from './users/users.module';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
     imports: [
         ConfigModule.forRoot({
             isGlobal: true,
         }),
+        HealthModule,
+        UsersModule,
+        PostsModule,
     ],
-    providers: [MyLoggerService],
-    exports: [MyLoggerService],
+    providers: [],
 })
 export class AppModule {}
