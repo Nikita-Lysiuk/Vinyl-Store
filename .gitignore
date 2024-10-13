@@ -26,4 +26,5 @@ coverage/
 .pids
 pm2.log
 
-*.json
+posts.json
+users.json
