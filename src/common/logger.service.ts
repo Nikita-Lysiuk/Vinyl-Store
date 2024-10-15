@@ -5,14 +5,17 @@ import { createLogger, transports, format, Logger } from 'winston';
 export class MyLoggerService implements LoggerService {
     private readonly logger: Logger;
 
+    private readonly PATH_LOG = 'app.log';
+    private readonly PATH_ERROR_LOG = 'error.log';
+
     constructor() {
         this.logger = createLogger({
             level: 'info',
             format: format.combine(format.timestamp(), format.json()),
             transports: [
                 new transports.Console(),
-                new transports.File({ filename: 'app.log' }),
-                new transports.File({ filename: 'error.log', level: 'error' }),
+                new transports.File({ filename: this.PATH_LOG }),
+                new transports.File({ filename: this.PATH_ERROR_LOG, level: 'error' }),
             ],
         });
     }
