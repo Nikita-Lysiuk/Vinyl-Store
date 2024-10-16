@@ -1,11 +1,10 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { FilesService } from 'src/common';
+import { FilesService, MapperService } from 'src/common';
 import { CreatePostDto, UpdatePostDto } from './dto';
 import { Post, UserPost } from './interfaces/posts.interface';
 import { User } from 'src/users/interfaces/users.interface';
 import { v4 as uuidv4 } from 'uuid';
-import { MapperService } from 'src/common/mapper.service';
 
 @Injectable()
 export class PostsService {
