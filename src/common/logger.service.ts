@@ -15,7 +15,10 @@ export class MyLoggerService implements LoggerService {
             transports: [
                 new transports.Console(),
                 new transports.File({ filename: this.PATH_LOG }),
-                new transports.File({ filename: this.PATH_ERROR_LOG, level: 'error' }),
+                new transports.File({
+                    filename: this.PATH_ERROR_LOG,
+                    level: 'error',
+                }),
             ],
         });
     }

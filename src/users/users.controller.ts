@@ -10,6 +10,7 @@ import {
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { RegisterUserDto, LoginUserDto, UpdateProfileDto } from './dto';
+import { GetProfileData } from './interfaces/users.interface';
 
 @Controller()
 export class UsersController {
@@ -27,7 +28,7 @@ export class UsersController {
 
     @UseGuards(JwtAuthGuard)
     @Get('profile')
-    async getProfile(@Request() req) {
+    async getProfile(@Request() req): Promise<GetProfileData> {
         const userId = req.user.userId;
         return await this.usersService.getProfile(userId);
     }

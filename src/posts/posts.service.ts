@@ -5,6 +5,7 @@ import { CreatePostDto, UpdatePostDto } from './dto';
 import { Post, UserPost } from './interfaces/posts.interface';
 import { User } from 'src/users/interfaces/users.interface';
 import { v4 as uuidv4 } from 'uuid';
+import { MapperService } from 'src/common/mapper.service';
 
 @Injectable()
 export class PostsService {
@@ -28,7 +29,7 @@ export class PostsService {
         const post: Post = {
             id: uuidv4(),
             ...createPostDto,
-            date: new Date().toISOString(),
+            date: new Date().getTime(),
             userId,
             likedBy: [],
         };
@@ -56,19 +57,12 @@ export class PostsService {
             this.users = await this.filesService.readDataFromFile<User>(
                 this.USER_PATH
             );
-            const user = this.users.find((user: User) => user.id === userId);
-            const userPosts: UserPost[] = this.posts
-                .filter((post: Post) => post.userId === userId)
-                .map((post: Post) => {
-                    return {
-                        title: post.title,
-                        description: post.description,
-                        date: post.date,
-                        authorName: user.firstName + ' ' + user.lastName,
-                    };
-                });
-
-            return userPosts;
+            return MapperService.mapPostsToUserPosts(
+                this.posts,
+                this.users,
+                userId,
+                false
+            );
         } catch (error) {
             throw new HttpException(
                 'User posts could not be retrieved' + error.message,
@@ -77,7 +71,7 @@ export class PostsService {
         }
     }
 
-    async findAllPosts(userId: string): Promise<UserPost[]> {
+    async findAllPosts(): Promise<UserPost[]> {
         try {
             this.posts = await this.filesService.readDataFromFile<Post>(
                 this.POST_PATH
@@ -86,22 +80,12 @@ export class PostsService {
                 this.USER_PATH
             );
 
-            const userPosts: UserPost[] = this.posts
-                .filter((post: Post) => post.userId !== userId)
-                .sort((a: Post, b: Post) => b.date.localeCompare(a.date))
-                .map((post: Post) => {
-                    const user = this.users.find(
-                        (user: User) => user.id === post.userId
-                    );
-                    return {
-                        title: post.title,
-                        description: post.description,
-                        date: post.date,
-                        authorName: user.firstName + ' ' + user.lastName,
-                    };
-                });
-
-            return userPosts;
+            return MapperService.mapPostsToUserPosts(
+                this.posts,
+                this.users,
+                undefined,
+                true
+            );
         } catch (error) {
             throw new HttpException(
                 'All posts could not be retrieved' + error.message,
@@ -110,21 +94,9 @@ export class PostsService {
         }
     }
 
-    async updatePost(
-        id: string,
-        updatePostDto: UpdatePostDto
-    ): Promise<string> {
+    async updatePost(id: string, updatePostDto: UpdatePostDto): Promise<Post> {
         try {
-            this.posts = await this.filesService.readDataFromFile<Post>(
-                this.POST_PATH
-            );
-
-            const postIndex = this.posts.findIndex(
-                (post: Post) => post.id === id
-            );
-            if (postIndex === -1) {
-                throw new HttpException('Post not found', 404);
-            }
+            const postIndex = await this.getPostById(id);
 
             this.posts[postIndex] = {
                 ...this.posts[postIndex],
@@ -132,7 +104,7 @@ export class PostsService {
             };
 
             await this.filesService.writeDataToFile(this.POST_PATH, this.posts);
-            return 'Post updated successfully';
+            return this.posts[postIndex];
         } catch (error) {
             throw new HttpException(
                 'Post could not be updated' + error.message,
@@ -143,16 +115,7 @@ export class PostsService {
 
     async deletePost(id: string): Promise<string> {
         try {
-            this.posts = await this.filesService.readDataFromFile<Post>(
-                this.POST_PATH
-            );
-
-            const postIndex = this.posts.findIndex(
-                (post: Post) => post.id === id
-            );
-            if (postIndex === -1) {
-                throw new HttpException('Post not found', 404);
-            }
+            const postIndex = await this.getPostById(id);
 
             this.posts.splice(postIndex, 1);
 
@@ -168,16 +131,7 @@ export class PostsService {
 
     async likePost(id: string, userId: string): Promise<string> {
         try {
-            this.posts = await this.filesService.readDataFromFile<Post>(
-                this.POST_PATH
-            );
-
-            const postIndex = this.posts.findIndex(
-                (post: Post) => post.id === id
-            );
-            if (postIndex === -1) {
-                throw new HttpException('Post not found', 404);
-            }
+            const postIndex = await this.getPostById(id);
 
             if (this.posts[postIndex].likedBy.includes(userId)) {
                 throw new HttpException('Post already liked', 400);
@@ -197,16 +151,7 @@ export class PostsService {
 
     async unlikePost(id: string, userId: string): Promise<string> {
         try {
-            this.posts = await this.filesService.readDataFromFile<Post>(
-                this.POST_PATH
-            );
-
-            const postIndex = this.posts.findIndex(
-                (post: Post) => post.id === id
-            );
-            if (postIndex === -1) {
-                throw new HttpException('Post not found', 404);
-            }
+            const postIndex = await this.getPostById(id);
 
             if (!this.posts[postIndex].likedBy.includes(userId)) {
                 throw new HttpException('Post not liked', 400);
@@ -224,5 +169,17 @@ export class PostsService {
                 500
             );
         }
+    }
+
+    private async getPostById(id: string): Promise<number> {
+        this.posts = await this.filesService.readDataFromFile<Post>(
+            this.POST_PATH
+        );
+        const postIndex = this.posts.findIndex((post: Post) => post.id === id);
+        if (postIndex === -1) {
+            throw new HttpException('Post not found', 404);
+        }
+
+        return postIndex;
     }
 }
