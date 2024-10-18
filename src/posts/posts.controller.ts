@@ -37,15 +37,18 @@ export class PostsController {
 
     @Put(':id')
     async updatePost(
+        @Request() req,
         @Body() updatePostDto: UpdatePostDto,
         @Param('id') id: string
     ) {
-        return await this.postsService.updatePost(id, updatePostDto);
+        const userId = req.user.userId;
+        return await this.postsService.updatePost(id, updatePostDto, userId);
     }
 
     @Delete(':id')
-    async deletePost(@Param('id') id: string) {
-        return await this.postsService.deletePost(id);
+    async deletePost(@Request() req, @Param('id') id: string) {
+        const userId = req.user.userId;
+        return await this.postsService.deletePost(id, userId);
     }
 
     @Post(':id/like')

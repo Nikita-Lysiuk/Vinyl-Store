@@ -93,9 +93,19 @@ export class PostsService {
         }
     }
 
-    async updatePost(id: string, updatePostDto: UpdatePostDto): Promise<Post> {
+    async updatePost(
+        id: string,
+        updatePostDto: UpdatePostDto,
+        userId: string
+    ): Promise<Post> {
         try {
             const postIndex = await this.getPostById(id);
+            if (this.posts[postIndex].userId !== userId) {
+                throw new HttpException(
+                    'You dont have permission to update this post',
+                    403
+                );
+            }
 
             this.posts[postIndex] = {
                 ...this.posts[postIndex],
@@ -112,10 +122,15 @@ export class PostsService {
         }
     }
 
-    async deletePost(id: string): Promise<string> {
+    async deletePost(id: string, userId: string): Promise<string> {
         try {
             const postIndex = await this.getPostById(id);
-
+            if (this.posts[postIndex].userId !== userId) {
+                throw new HttpException(
+                    'You dont have permission to delete this post',
+                    403
+                );
+            }
             this.posts.splice(postIndex, 1);
 
             await this.filesService.writeDataToFile(this.POST_PATH, this.posts);
