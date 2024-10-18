@@ -6,12 +6,13 @@ import * as dotenv from 'dotenv';
 import { MailService } from 'src/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
+import { Post } from 'src/posts/entities/post.entity';
 
 dotenv.config();
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([User]),
+        TypeOrmModule.forFeature([User, Post]),
         JwtModule.register({
             global: true,
             secret: process.env.SECRET_KEY,

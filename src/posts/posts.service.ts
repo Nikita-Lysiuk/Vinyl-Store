@@ -4,7 +4,8 @@ import { UserPost } from './interfaces/posts.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { Equal, FindOptionsWhere, Like, Repository } from 'typeorm';
+import { Params } from './types';
 
 @Injectable()
 export class PostsService {
@@ -42,12 +43,27 @@ export class PostsService {
         }
     }
 
-    async findUserPosts(userId: string): Promise<UserPost[]> {
+    async findUserPosts(
+        userId: string,
+        limit: number,
+        offset: number,
+        sort: 'ASC' | 'DESC',
+        sortBy: Params,
+        search: Partial<Record<Params, string>>
+    ): Promise<UserPost[]> {
         try {
+            const conditions = this.createSearchConditions(search);
+
             return await this.postRepository
                 .find({
-                    where: { user: { id: userId } },
+                    where: {
+                        user: { id: userId },
+                        ...conditions,
+                    },
                     relations: ['user'],
+                    order: { [sortBy]: sort },
+                    take: limit,
+                    skip: offset,
                 })
                 .then((posts: Post[]) => {
                     return posts.map((post: Post) => {
@@ -68,10 +84,24 @@ export class PostsService {
         }
     }
 
-    async findAllPosts(): Promise<UserPost[]> {
+    async findAllPosts(
+        limit: number,
+        offset: number,
+        sort: 'ASC' | 'DESC',
+        sortBy: Params,
+        search: Partial<Record<Params, string>>
+    ): Promise<UserPost[]> {
         try {
+            const conditions = this.createSearchConditions(search);
+
             return await this.postRepository
-                .find({ relations: ['user'] })
+                .find({
+                    where: conditions,
+                    relations: ['user'],
+                    order: { [sortBy]: sort },
+                    take: limit,
+                    skip: offset,
+                })
                 .then((posts: Post[]) => {
                     return posts.map((post: Post) => {
                         return {
@@ -202,5 +232,28 @@ export class PostsService {
                 500
             );
         }
+    }
+
+    createSearchConditions(
+        search: Partial<Record<Params, string>>
+    ): FindOptionsWhere<Post> {
+        const searchConditions: FindOptionsWhere<Post> = {};
+        if (search.id) {
+            searchConditions.id = Like(`%${search.id}%`);
+        }
+        if (search.title) {
+            searchConditions.title = Like(`%${search.title}%`);
+        }
+        if (search.description) {
+            searchConditions.description = Like(`%${search.description}%`);
+        }
+        if (search.date) {
+            const date = new Date(search.date);
+            searchConditions.date = Equal(date);
+        }
+        if (search.userId) {
+            searchConditions.user = { id: Like(`%${search.userId}%`) };
+        }
+        return searchConditions;
     }
 }

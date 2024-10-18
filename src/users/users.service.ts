@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { GetProfileData } from './interfaces/users.interface';
+import { GetProfileData, UserWithPost } from './interfaces/users.interface';
 import { JwtService } from '@nestjs/jwt';
 import { MailService } from 'src/common';
 import { LoginUserDto, RegisterUserDto, UpdateProfileDto } from './dto';
@@ -109,5 +109,36 @@ export class UsersService {
         } catch (error) {
             throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    async getUsers(): Promise<UserWithPost[]> {
+        const query = `
+            SELECT 
+                u.firstName,
+                u.lastName,
+                u.email,
+                p.title,
+                p.description,
+                p.date,
+                COUNT(l.userId) as likesCount
+            FROM 
+                user u
+            LEFT JOIN 
+                (
+                    SELECT 
+                        p2.*,
+                        ROW_NUMBER() OVER (PARTITION BY p2.userId ORDER BY p2.date) AS rn
+                    FROM 
+                        post p2
+                ) AS p ON u.id = p.userId AND p.rn = 1
+            LEFT JOIN 
+                likes l ON l.postId = p.id
+            GROUP BY
+                u.id, p.id
+            ORDER BY
+                u.id;
+        `;
+
+        return await this.userRepository.query(query);
     }
 }

@@ -10,7 +10,7 @@ import {
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { RegisterUserDto, LoginUserDto, UpdateProfileDto } from './dto';
-import { GetProfileData } from './interfaces/users.interface';
+import { GetProfileData, UserWithPost } from './interfaces/users.interface';
 
 @Controller()
 export class UsersController {
@@ -38,5 +38,11 @@ export class UsersController {
     async updateProfile(@Request() req, @Body() profileData: UpdateProfileDto) {
         const userId = req.user.userId;
         return await this.usersService.updateProfile(userId, profileData);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('users')
+    async getUsers(): Promise<UserWithPost[]> {
+        return await this.usersService.getUsers();
     }
 }
