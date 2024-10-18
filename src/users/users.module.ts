@@ -3,12 +3,15 @@ import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { JwtModule } from '@nestjs/jwt';
 import * as dotenv from 'dotenv';
-import { FilesService, MailService } from 'src/common';
+import { MailService } from 'src/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './entities/user.entity';
 
 dotenv.config();
 
 @Module({
     imports: [
+        TypeOrmModule.forFeature([User]),
         JwtModule.register({
             global: true,
             secret: process.env.SECRET_KEY,
@@ -16,6 +19,6 @@ dotenv.config();
         }),
     ],
     controllers: [UsersController],
-    providers: [UsersService, FilesService, MailService],
+    providers: [UsersService, MailService],
 })
 export class UsersModule {}

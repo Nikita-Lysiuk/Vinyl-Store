@@ -1,0 +1,13 @@
+{
+    "type": "mysql",
+    "host": "195.35.59.14",
+    "port": 3306,
+    "username": "u491894875_nikita_lysiuk",
+    "password": "Transcend55",
+    "database": "u491894875_leverX",
+    "entities": ["src/**/*.entity{.ts,.js}"],
+    "migrations": ["src/migration/*{.ts,.js}"],
+    "cli": {
+        "migrationsDir": "src/migration"
+    }
+}
