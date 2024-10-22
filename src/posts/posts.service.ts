@@ -1,5 +1,5 @@
 import { ConflictException, HttpException, Injectable } from '@nestjs/common';
-import { CreatePostDto, UpdatePostDto } from './dto';
+import { CreatePostDto, QueryParamsDto, UpdatePostDto } from './dto';
 import { UserPost } from './interfaces/posts.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
@@ -45,13 +45,10 @@ export class PostsService {
 
     async findUserPosts(
         userId: string,
-        limit: number,
-        offset: number,
-        sort: 'ASC' | 'DESC',
-        sortBy: Params,
-        search: Partial<Record<Params, string>>
+        query: QueryParamsDto
     ): Promise<UserPost[]> {
         try {
+            const { limit, offset, sort, sortBy, search } = query;
             const conditions = this.createSearchConditions(search);
 
             return await this.postRepository
@@ -84,15 +81,14 @@ export class PostsService {
         }
     }
 
-    async findAllPosts(
-        limit: number,
-        offset: number,
-        sort: 'ASC' | 'DESC',
-        sortBy: Params,
-        search: Partial<Record<Params, string>>
-    ): Promise<UserPost[]> {
+    async findAllPosts(query: QueryParamsDto): Promise<UserPost[]> {
         try {
-            const conditions = this.createSearchConditions(search);
+            const { limit, offset, sort, sortBy, search } = query;
+
+            let conditions;
+            if (search) {
+                conditions = this.createSearchConditions(search);
+            }
 
             return await this.postRepository
                 .find({
