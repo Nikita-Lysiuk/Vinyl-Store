@@ -1,8 +1,9 @@
 {
-    "name": "homework_1",
+    "name": "homework_2",
     "version": "1.0.0",
     "description": "first homework for course on leverX",
     "main": "index.js",
+    "type": "module",
     "scripts": {
         "start": "node index.js",
         "build": "eslint --fix . && prettier --check --write .",

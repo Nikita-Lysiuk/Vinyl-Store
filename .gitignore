@@ -10,3 +10,7 @@ dist/
 build/
 
 *.log
+
+posts.json
+users.json
+backup.json
