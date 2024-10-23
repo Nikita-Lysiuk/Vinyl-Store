@@ -1,13 +1,16 @@
-const winston = require('winston');
+import winston from 'winston';
+
+const PATH_LOG = 'app.log';
+const PATH_ERROR_LOG = 'error.log';
 
 const logger = winston.createLogger({
     level: 'info',
     format: winston.format.json(),
     transports: [
         new winston.transports.Console(),
-        new winston.transports.File({ filename: 'app.log' }),
-        new winston.transports.File({ filename: 'error.log', level: 'error' }),
+        new winston.transports.File({ filename: PATH_LOG }),
+        new winston.transports.File({ filename: PATH_ERROR_LOG, level: 'error' }),
     ],
 });
 
-module.exports = logger;
+export default logger;

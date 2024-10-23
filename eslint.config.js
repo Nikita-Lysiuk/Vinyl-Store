@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     languageOptions: {
         ecmaVersion: 2021,
         globals: {},

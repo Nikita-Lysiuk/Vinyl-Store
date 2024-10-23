@@ -1,28 +1,41 @@
-const http = require('http');
-const jpackage = require('./package.json');
-const dotenv = require('dotenv');
-const logger = require('./logger');
+import express from 'express';
+import dotenv from 'dotenv';
+import logger from './logger.js';
+import authMiddleware from './middleware/auth-middleware.js';
+import {
+    healthRouter,
+    registerRouter,
+    loginRouter,
+    profileRouter,
+    profileUpdateRouter,
+    createPostRouter,
+    getPostRouter,
+    deletePostRouter,
+    updatePostRouter,
+} from './routes/routes.js';
 
 dotenv.config();
 
-const server = http.createServer((req, res) => {
-    if (req.method === 'GET' && req.url === '/health') {
-        logger.info(`New health check request. ${req.method} ${req.url}`);
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.setHeader('X-Powered-By', 'Node.js');
-        res.setHeader('Cache-Control', 'no-cache');
-        res.setHeader('Connection', 'keep-alive');
-        res.setHeader('Date', new Date().toUTCString());
-        res.write(JSON.stringify({ version: jpackage.version }));
-        res.end();
-    } else {
-        logger.error(`Invalid request. ${req.method} ${req.url}`);
-        res.statusCode = 404;
-        res.end();
-    }
+const app = express();
+
+app.use(express.json());
+
+app.use('/', healthRouter);
+app.use('/', registerRouter);
+app.use('/', loginRouter);
+app.use(authMiddleware);
+app.use('/', profileRouter);
+app.use('/', profileUpdateRouter);
+app.use('/', createPostRouter);
+app.use('/', getPostRouter);
+app.use('/', deletePostRouter);
+app.use('/', updatePostRouter);
+
+app.use((err, req, res, next) => {
+    logger.error(`An error occurred. ${err}`);
+    res.status(500).send('An error occurred. Please try again later.');
 });
 
-server.listen(process.env.PORT, () => {
+app.listen(process.env.PORT, () => {
     logger.info(`Server is running on port ${process.env.PORT}`);
 });
