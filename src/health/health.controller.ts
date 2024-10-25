@@ -16,8 +16,8 @@ export class HealthController {
     @Header('Cache-Control', 'no-cache')
     @Header('Connection', 'keep-alive')
     @Header('Date', new Date().toUTCString())
-    checkHealth(@Req() req: Request): jPackage {
+    async checkHealth(@Req() req: Request): Promise<jPackage> {
         this.logger.log(`New health check request. ${req.method} ${req.url}`);
-        return this.healthService.getVersion();
+        return await this.healthService.getVersion();
     }
 }

@@ -7,8 +7,10 @@ export interface jPackage {
 
 @Injectable()
 export class HealthService {
-    getVersion(): jPackage {
-        const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+    async getVersion(): Promise<jPackage> {
+        const packageJson = JSON.parse(
+            await fs.promises.readFile('./package.json', 'utf-8')
+        );
         return { version: packageJson.version };
     }
 }
