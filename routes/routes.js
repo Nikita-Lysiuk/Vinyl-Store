@@ -1,9 +1,0 @@
-export { default as healthRouter } from './health.js';
-export { default as registerRouter } from './register.js';
-export { default as loginRouter } from './login.js';
-export { default as profileRouter } from './profile.js';
-export { default as profileUpdateRouter } from './update-profile.js';
-export { default as createPostRouter } from './create-post.js';
-export { default as getPostRouter } from './get-post.js';
-export { default as deletePostRouter } from './delete-post.js';
-export { default as updatePostRouter } from './update-post.js';

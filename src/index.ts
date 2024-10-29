@@ -1,37 +1,35 @@
-import express from 'express';
+import express, { Request, Response, NextFunction, Application } from 'express';
 import dotenv from 'dotenv';
-import logger from './logger.js';
-import authMiddleware from './middleware/auth-middleware.js';
+import logger from './logger';
 import {
     healthRouter,
     registerRouter,
     loginRouter,
     profileRouter,
-    profileUpdateRouter,
+    updateProfileRouter,
     createPostRouter,
-    getPostRouter,
+    getPostsRouter,
     deletePostRouter,
     updatePostRouter,
-} from './routes/routes.js';
+} from './routes/routes';
 
 dotenv.config();
 
-const app = express();
+const app: Application = express();
 
 app.use(express.json());
 
 app.use('/', healthRouter);
 app.use('/', registerRouter);
 app.use('/', loginRouter);
-app.use(authMiddleware);
 app.use('/', profileRouter);
-app.use('/', profileUpdateRouter);
+app.use('/', updateProfileRouter);
 app.use('/', createPostRouter);
-app.use('/', getPostRouter);
+app.use('/', getPostsRouter);
 app.use('/', deletePostRouter);
 app.use('/', updatePostRouter);
 
-app.use((err, req, res, next) => {
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     logger.error(`An error occurred. ${err}`);
     res.status(500).send('An error occurred. Please try again later.');
 });
