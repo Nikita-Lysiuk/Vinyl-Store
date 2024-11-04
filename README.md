@@ -1,4 +1,5 @@
 # Homework
+# Homework
 
 ## Description
 
@@ -6,6 +7,7 @@ This project is a Node.js-based server application built with the NestJS framewo
 
 ## Requirements
 
+Before running the project, make sure you have the following installed:
 Before running the project, make sure you have the following installed:
 
 - [Node.js](https://nodejs.org/en/download/) (version 14 or higher)
