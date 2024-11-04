@@ -1,5 +1,6 @@
 ## How to Start the App
 
+
 To start the application, you can use the following npm scripts:
 
 - **Build the app**: `npm run build`
