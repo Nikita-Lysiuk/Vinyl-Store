@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum Method {
+  POST
+  PUT
+  DELETE
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String   @unique
+  password  String
+  birthDate DateTime
+  avatar    String   @default("https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png")
+  role      Role     @default(USER)
+
+  reviews   Review[] 
+  purchases Order[] 
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Vinyl {
+  id          Int    @id @default(autoincrement())
+  name        String
+  authorName  String
+  description String
+  price       Float
+  image       String
+
+  reviews   Review[]
+  purchases OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Review {
+  id      Int    @id @default(autoincrement())
+  score   Int
+  comment String?
+
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+
+  vinyl   Vinyl @relation(fields: [vinylId], references: [id])
+  vinylId Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id Int @id @default(autoincrement())
+
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId Int
+
+  vinyl   Vinyl @relation(fields: [vinylId], references: [id])
+  vinylId Int
+
+  quantity Int
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+
+  items OrderItem[]
+
+  totalPrice Float
+
+  status OrderStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Logs {
+  id     Int    @id @default(autoincrement())
+  action String
+  userId Int
+  method Method
+  endpoint String
+
+  createdAt DateTime @default(now())
+}
