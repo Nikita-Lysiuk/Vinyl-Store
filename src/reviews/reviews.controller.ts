@@ -10,28 +10,28 @@ import { Roles } from 'src/decorators';
 export class ReviewsController {
     public constructor(private readonly reviewsService: ReviewsService) {}
 
-    @Post(':id')
+    @Post(':vinylId')
     public async createReviews(
-        @Param('id') id: string,
+        @Param('vinylId') vinylId: number,
         @Req() req,
         @Body() data: CreateReviewsDto
     ): Promise<Review>
     {
         const userId = req.user.sub;
-        return await this.reviewsService.createReviews(id, userId, data);
+        return await this.reviewsService.createReviews(vinylId, userId, data);
     }
 
     @Delete(':id')
     @Roles('ADMIN')
-    public async deleteReviews(@Param('id') id: string): Promise<string> {
+    public async deleteReviews(@Param('id') id: number) {
         return await this.reviewsService.deleteReviews(id);
     }
 
-    @Get(':id')
+    @Get(':vinylId')
     public async getReviews(
-        @Param('id') id: string,
+        @Param('vinylId') vinylId: number,
         @Query() query: GetReviewsDto
     ): Promise<Review[]> {
-        return await this.reviewsService.getReviews(id, query);
+        return await this.reviewsService.getReviews(vinylId, query);
     }
 }

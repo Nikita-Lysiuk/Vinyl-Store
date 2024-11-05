@@ -19,27 +19,27 @@ export class GetSearchVinylsDto {
     @Min(1)
     @Max(100)
     @Type(() => Number)
-        limit?: number = 10;
+        limit: number = 10;
 
     @IsOptional()
     @IsInt()
     @Min(0)
     @Type(() => Number)
-        offset?: number = 0;
+        offset: number = 0;
 
     @IsOptional()
     @IsEnum(SortTypes)
-        order?: SortTypes = SortTypes.DESC;
+        order: SortTypes = SortTypes.DESC;
 
     @IsOptional()
     @IsEnum(SortByTypes)
-        sortBy?: SortByTypes = SortByTypes.name;
+        sortBy: SortByTypes = SortByTypes.name;
 
     @IsOptional()
     @IsString()
-        name?: string = '';
+        name: string = '';
 
     @IsOptional()
     @IsString()
-        authorName?: string = '';
+        authorName: string = '';
 }   

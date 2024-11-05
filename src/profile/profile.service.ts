@@ -3,6 +3,7 @@ import { GetProfile, UpdateProfile } from './types';
 import { PrismaService } from 'src/database/prisma.service';
 import { UpdateProfileDto } from './dto';
 import { S3Service } from 'src/common';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class ProfileService {
@@ -34,15 +35,16 @@ export class ProfileService {
                         status: 'APPROVED',
                     },
                     select: {
-                        totalPrice: true,
                         items: {
                             select: {
                                 vinyl: {
                                     select: {
                                         name: true,
                                         authorName: true,
+                                        price: true,
                                     },
                                 },
+                                quantity: true,
                             },
                         },
                     },
@@ -55,7 +57,7 @@ export class ProfileService {
         userId: number,
         updateProfileDto: UpdateProfileDto,
         avatar?: Express.Multer.File
-    ): Promise<string> {
+    ): Promise<User> {
         const user = await this.prismaService.user.findUnique({
             where: {
                 id: userId,
@@ -75,25 +77,29 @@ export class ProfileService {
         };
 
         if (avatar) {
+            await this.s3Service.deleteFile(user.avatar);
             const avatarUrl = await this.s3Service.uploadFile(avatar);
             data.avatar = avatarUrl;
         }
 
-        await this.prismaService.user.update({
+        const updatedProfile = await this.prismaService.user.update({
             where: { id: userId },
             data,
         });
 
-        return 'Profile updated';
+        if (!updatedProfile) {
+            await this.s3Service.deleteFile(data.avatar);
+            throw new HttpException('Error updating profile', 500);
+        }
+
+        return updatedProfile;
     }
 
-    async deleteProfile(userId: number): Promise<string> {
+    async deleteProfile(userId: number) {
         await this.prismaService.user.delete({
             where: {
                 id: userId,
             },
-            
         });
-        return 'Profile deleted';
     }
 }

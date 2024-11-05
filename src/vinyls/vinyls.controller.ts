@@ -1,5 +1,4 @@
 import {
-    BadRequestException,
     Body,
     Controller,
     Delete,
@@ -22,9 +21,8 @@ import {
     GetVinylsDto,
     UpdateVinylRecordDto,
 } from './dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import * as multer from 'multer';
 import { Vinyl } from '@prisma/client';
+import { imageFileInterceptor } from 'src/common';
 
 @Controller('vinyls')
 @UseFilters(HttpExceptionFilter)
@@ -46,25 +44,11 @@ export class VinylsController {
 
     @Post()
     @Roles('ADMIN')
-    @UseInterceptors(
-        FileInterceptor('coverImage', {
-            storage: multer.memoryStorage(),
-            limits: { fileSize: 10 * 1024 * 1024 },
-            fileFilter: (_, file, callback) => {
-                if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
-                    return callback(
-                        new BadRequestException('must be an image file'),
-                        false
-                    );
-                }
-                callback(null, true);
-            },
-        })
-    )
+    @UseInterceptors(imageFileInterceptor('coverImage'))
     public async createVinyl(
         @Body() createVinylRecordDto: CreateVinylRecordDto,
         @UploadedFile() coverImage: Express.Multer.File
-    ): Promise<string> {
+    ): Promise<Vinyl> {
         return await this.vinylsService.createVinyl(
             createVinylRecordDto,
             coverImage
@@ -73,23 +57,9 @@ export class VinylsController {
 
     @Put(':id')
     @Roles('ADMIN')
-    @UseInterceptors(
-        FileInterceptor('coverImage', {
-            storage: multer.memoryStorage(),
-            limits: { fileSize: 10 * 1024 * 1024 },
-            fileFilter: (_, file, callback) => {
-                if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
-                    return callback(
-                        new BadRequestException('must be an image file'),
-                        false
-                    );
-                }
-                callback(null, true);
-            },
-        })
-    )
+    @UseInterceptors(imageFileInterceptor('coverImage'))
     public async updateVinyl(
-        @Param('id') id: string,
+        @Param('id') id: number,
         @Body() updateVinylRecordDto: UpdateVinylRecordDto,
         @UploadedFile() coverImage?: Express.Multer.File
     ): Promise<Vinyl> {
@@ -102,7 +72,7 @@ export class VinylsController {
 
     @Delete(':id')
     @Roles('ADMIN')
-    public async deleteVinyl(@Param('id') id: string): Promise<string> {
+    public async deleteVinyl(@Param('id') id: number) {
         return await this.vinylsService.deleteVinyl(id);
     }
 }

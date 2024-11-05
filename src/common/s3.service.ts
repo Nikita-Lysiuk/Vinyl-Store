@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as AWS from 'aws-sdk';
 
@@ -16,7 +16,7 @@ export class S3Service {
     async uploadFile(file: Express.Multer.File): Promise<string> {
         const params = {
             Bucket: this.configService.get('BUCKET_NAME_S3'),
-            Key: Date.now() + String(file.originalname),
+            Key: `${Date.now()}${file.originalname}`,
             Body: file.buffer,
             ContentType: file.mimetype,
         };
@@ -25,6 +25,24 @@ export class S3Service {
             return (await this.s3.upload(params).promise()).Location;
         } catch (error) {
             throw new Error('Something went wrong ' + error);
+        }
+    }
+
+    async deleteFile(url: string) {
+        const key = url.split('/').pop();
+
+        const params = {
+            Bucket: this.configService.get('BUCKET_NAME_S3'),
+            Key: key,
+        };
+
+        try {
+            await this.s3.headObject(params).promise();
+            await this.s3.deleteObject(params).promise();
+        } catch (error) {
+            if (error.code !== 'NotFound') {
+                throw new HttpException('Something went wrong ' + error + ' ' + key, 500);
+            }
         }
     }
 }

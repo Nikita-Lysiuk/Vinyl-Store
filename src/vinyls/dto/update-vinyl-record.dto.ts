@@ -1,25 +1,29 @@
 import { Transform } from 'class-transformer';
-import { IsNumber, IsOptional, IsString, Min, MinLength } from 'class-validator';
+import { IsNumber, IsOptional, IsString, MaxLength, Min, MinLength } from 'class-validator';
 
 export class UpdateVinylRecordDto {
     @IsOptional()
     @IsString()
     @MinLength(2)
-        name: string;
+    @MaxLength(50)
+        name?: string;
 
     @IsOptional()
     @IsString()
     @MinLength(2)
-        authorName: string;
+    @MaxLength(50)
+        authorName?: string;
 
     @IsOptional()
     @IsString()
     @MinLength(10)
-        description: string;
+    @MaxLength(200)
+        description?: string;
 
     @IsOptional()
     @Transform(({ value }) => parseFloat(value))
     @IsNumber()
     @Min(0.01)
-        price: number;
+    @MaxLength(9999.99)
+        price?: number;
 }

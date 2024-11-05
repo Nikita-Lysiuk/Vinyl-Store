@@ -1,7 +1,12 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma.service';
 import { GetSearchVinyls, GetVinyls } from './types';
-import { CreateVinylRecordDto, GetSearchVinylsDto, GetVinylsDto, UpdateVinylRecordDto } from './dto';
+import {
+    CreateVinylRecordDto,
+    GetSearchVinylsDto,
+    GetVinylsDto,
+    UpdateVinylRecordDto,
+} from './dto';
 import { S3Service } from 'src/common';
 import { Vinyl } from '@prisma/client';
 
@@ -9,7 +14,7 @@ import { Vinyl } from '@prisma/client';
 export class VinylsService {
     public constructor(
         private readonly s3Service: S3Service,
-        private readonly prismaService: PrismaService,
+        private readonly prismaService: PrismaService
     ) {}
 
     async getVinyls(query: GetVinylsDto): Promise<GetVinyls[]> {
@@ -30,9 +35,13 @@ export class VinylsService {
             description: vinyl.description,
             price: vinyl.price,
             firstReview: vinyl.reviews[0]?.comment || null,
-            averageScore: vinyl.reviews.length > 0
-                ? vinyl.reviews.reduce((acc, review) => acc + review.score, 0) / vinyl.reviews.length
-                : null,
+            averageScore:
+                vinyl.reviews.length > 0
+                    ? vinyl.reviews.reduce(
+                        (acc, review) => acc + review.score,
+                        0
+                    ) / vinyl.reviews.length
+                    : null,
         }));
 
         return vinylsResponse;
@@ -71,7 +80,10 @@ export class VinylsService {
         return vinylsResponse;
     }
 
-    async createVinyl(createVinylRecordDto: CreateVinylRecordDto, coverImage: Express.Multer.File): Promise<string> {
+    async createVinyl(
+        createVinylRecordDto: CreateVinylRecordDto,
+        coverImage: Express.Multer.File
+    ): Promise<Vinyl> {
         const { name, authorName, description, price } = createVinylRecordDto;
 
         if (!coverImage) {
@@ -91,17 +103,22 @@ export class VinylsService {
         });
 
         if (!vinyl) {
+            await this.s3Service.deleteFile(url);
             throw new HttpException('Vinyl cannot be created', 500);
         }
 
-        return 'Vinyl created successfully';
+        return vinyl;
     }
 
-    async updateVinyl(id: string, createVinylRecordDto: UpdateVinylRecordDto, coverImage?: Express.Multer.File): Promise<Vinyl> {
+    async updateVinyl(
+        id: number,
+        createVinylRecordDto: UpdateVinylRecordDto,
+        coverImage?: Express.Multer.File
+    ): Promise<Vinyl> {
         const { name, authorName, description, price } = createVinylRecordDto;
 
         const vinyl = await this.prismaService.vinyl.findUnique({
-            where: { id:Number(id) },
+            where: { id },
         });
 
         if (!vinyl) {
@@ -111,18 +128,19 @@ export class VinylsService {
         let url = vinyl.image;
 
         if (coverImage) {
+            await this.s3Service.deleteFile(vinyl.image);
             url = await this.s3Service.uploadFile(coverImage);
         }
 
         const updatedVinyl = await this.prismaService.vinyl.update({
-            where: { id: Number(id) },
+            where: { id },
             data: {
                 name: name ?? vinyl.name,
                 authorName: authorName ?? vinyl.authorName,
                 description: description ?? vinyl.description,
                 price: price ?? vinyl.price,
                 image: url,
-            }
+            },
         });
 
         if (!updatedVinyl) {
@@ -132,19 +150,19 @@ export class VinylsService {
         return updatedVinyl;
     }
 
-    async deleteVinyl(id: string): Promise<string> {
+    async deleteVinyl(id: number) {
         const vinyl = await this.prismaService.vinyl.findUnique({
-            where: { id: Number(id) },
+            where: { id },
         });
 
         if (!vinyl) {
             throw new HttpException('Vinyl not found', 404);
         }
 
-        await this.prismaService.vinyl.delete({
-            where: { id: Number(id) },
-        });
+        await this.s3Service.deleteFile(vinyl.image);
 
-        return 'Vinyl deleted successfully';
+        await this.prismaService.vinyl.delete({
+            where: { id },
+        });
     }
 }

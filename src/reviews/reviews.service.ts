@@ -7,13 +7,13 @@ import { Review } from '@prisma/client';
 export class ReviewsService {
     public constructor(private readonly prismaService: PrismaService) {}
 
-    async createReviews(vinylId: string, userId: number, data: CreateReviewsDto): Promise<Review> {
+    async createReviews(vinylId: number, userId: number, data: CreateReviewsDto): Promise<Review> {
         const review = await this.prismaService.review.create({
             data: {
                 ...data,
                 vinyl: {
                     connect: {
-                        id: Number(vinylId),
+                        id: vinylId,
                     },
                 },
                 user: {
@@ -31,11 +31,9 @@ export class ReviewsService {
         return review;
     }
 
-    async deleteReviews(id: string): Promise<string> {
+    async deleteReviews(id: number) {
         const review = await this.prismaService.review.findUnique({
-            where: {
-                id: Number(id),
-            }
+            where: { id },
         });
 
         if (!review) {
@@ -43,23 +41,17 @@ export class ReviewsService {
         }
 
         await this.prismaService.review.delete({
-            where: {
-                id: Number(id),
-            }
+            where: { id },
         });
-
-        return 'Review deleted';
     }
 
-    async getReviews(vinylId: string, query: GetReviewsDto): Promise<Review[]> {
+    async getReviews(vinylId: number, query: GetReviewsDto): Promise<Review[]> {
         const { limit, offset } = query;
 
         return await this.prismaService.review.findMany({
             take: limit,
             skip: offset,
-            where: {
-                vinylId: Number(vinylId),
-            },
+            where: { vinylId },
         });
     }
 }

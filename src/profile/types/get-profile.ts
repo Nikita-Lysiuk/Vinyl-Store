@@ -7,14 +7,15 @@ export type Review = {
 export type Vinyl = {
     name: string;
     authorName: string;
+    price: number;
 }
 
 export type Item = {
     vinyl: Vinyl;
+    quantity: number;
 }
 
 export type Purchase = {
-    totalPrice: number;
     items: Item[];
 }
 

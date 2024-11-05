@@ -1,5 +1,4 @@
 import {
-    BadRequestException,
     Body,
     Controller,
     Delete,
@@ -13,9 +12,9 @@ import {
 import { HttpExceptionFilter } from 'src/filters/http-exception.filter';
 import { GetProfile } from './types';
 import { ProfileService } from './profile.service';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateProfileDto } from './dto';
-import * as multer from 'multer';
+import { imageFileInterceptor } from 'src/common';
+import { User } from '@prisma/client';
 
 @Controller('profile')
 @UseFilters(HttpExceptionFilter)
@@ -29,26 +28,12 @@ export class ProfileController {
     }
 
     @Put()
-    @UseInterceptors(
-        FileInterceptor('avatar', {
-            storage: multer.memoryStorage(),
-            limits: { fileSize: 10 * 1024 * 1024 },
-            fileFilter: (_, file, callback) => {
-                if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
-                    return callback(
-                        new BadRequestException('must be an image file'),
-                        false
-                    );
-                }
-                callback(null, true);
-            },
-        })
-    )
+    @UseInterceptors(imageFileInterceptor('avatar'))
     public async updateProfile(
         @Req() req,
         @Body() UpdateProfileDto: UpdateProfileDto,
         @UploadedFile() avatar?: Express.Multer.File
-    ): Promise<string> {
+    ): Promise<User> {
         const userId = req.user.sub;
         return await this.profileService.updateProfile(
             userId,
@@ -58,7 +43,7 @@ export class ProfileController {
     }
 
     @Delete()
-    public async deleteProfile(@Req() req): Promise<string> {
+    public async deleteProfile(@Req() req) {
         const userId = req.user.sub;
         return await this.profileService.deleteProfile(userId);
     }

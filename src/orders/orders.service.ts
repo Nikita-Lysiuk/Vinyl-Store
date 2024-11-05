@@ -4,6 +4,7 @@ import { CreateOrderDto } from './dto';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { MailService, StripeService } from 'src/common';
+import { OrderStatus } from '@prisma/client';
 
 @Injectable()
 export class OrdersService {
@@ -43,20 +44,15 @@ export class OrdersService {
             })
         );
 
-        const totalPrice = orderItems.reduce(
-            (acc, item) => acc + item.price * item.quantity,
-            0
-        );
-
         const order = await this.prismaService.order.create({
             data: {
                 userId,
-                totalPrice,
                 status: 'PENDING',
                 items: {
                     create: orderItems.map((item) => ({
                         vinylId: item.vinylId,
                         quantity: item.quantity,
+                        price: item.price,
                     })),
                 },
             },
@@ -69,7 +65,7 @@ export class OrdersService {
             order.id
         );
 
-        const mail = await this.prismaService.user
+        const email = await this.prismaService.user
             .findUnique({
                 where: { id: userId },
                 select: { email: true },
@@ -77,7 +73,7 @@ export class OrdersService {
             .then((user) => user.email);
 
         await this.mailService.sendOrderCreationMail(
-            mail,
+            email,
             order.id,
             session.url
         );
@@ -131,7 +127,7 @@ export class OrdersService {
 
     private async updateOrderStatusAndSendMail(
         orderId: number,
-        status: 'APPROVED' | 'REJECTED',
+        status: OrderStatus,
         emailNotificationCallback: (email: string, orderId: number) => Promise<void>
     ) {
         await this.prismaService.order.update({

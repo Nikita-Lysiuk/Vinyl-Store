@@ -4,14 +4,14 @@ import { IsDate, IsOptional, IsString } from 'class-validator';
 export class UpdateProfileDto {
     @IsOptional()
     @IsString()
-        firstName: string;
+        firstName?: string;
 
     @IsOptional()
     @IsString()
-        lastName: string;
+        lastName?: string;
 
     @IsDate()
     @IsOptional()
     @Type(() => Date)
-        birthDate: Date;
+        birthDate?: Date;
 }
