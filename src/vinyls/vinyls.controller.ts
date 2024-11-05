@@ -17,6 +17,7 @@ import { VinylsService } from './vinyls.service';
 import { GetSearchVinyls, GetVinyls } from './types';
 import {
     CreateVinylRecordDto,
+    CreateVinylRecordFromDiscogsDto,
     GetSearchVinylsDto,
     GetVinylsDto,
     UpdateVinylRecordDto,
@@ -53,6 +54,14 @@ export class VinylsController {
             createVinylRecordDto,
             coverImage
         );
+    }
+
+    @Post('discogs')
+    @Roles('ADMIN')
+    public async createVinylFromDiscogs(
+        @Query() query: CreateVinylRecordFromDiscogsDto,
+    ): Promise<Vinyl[]> {
+        return await this.vinylsService.createVinylFromDiscogs(query);
     }
 
     @Put(':id')
