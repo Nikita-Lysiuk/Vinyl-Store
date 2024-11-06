@@ -1,4 +1,3 @@
-/**
  * ## Vinyl Store Application
  * 
  * This project is a backend application for managing a vinyl record store. It is built using the NestJS framework and includes various modules for handling different aspects of the application such as authentication, orders, profiles, reviews, and more.
@@ -24,6 +23,8 @@
  * - `AWS_SECRET_ACCESS_KEY`, `AWS_ACCESS_KEY_ID`, `BUCKET_NAME_S3`: AWS S3 credentials and bucket name.
  * - `STRIPE_API_KEY`, `STRIPE_SUCCESS_URL`, `STRIPE_CANCEL_URL`, `STRIPE_CURRENCY`, `STRIPE_WEBHOOK_SECRET`: Stripe payment settings.
  * - `EMAIL`, `PASSWORD`: Email credentials for sending notifications.
+ * - `TELEGRAM_BOT_TOKEN`: Token to your telegram bot.
+ * - `TELEGRAM_CHANNEL_ID`: Id of your char or channel in the telegram.
  * 
  * ### Scripts:
  * - `build`: Builds the application.

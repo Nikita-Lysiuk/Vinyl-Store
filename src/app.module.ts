@@ -10,6 +10,7 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
 import { LogsModule } from './logs/logs.module';
+import { TelegrafModule } from 'nestjs-telegraf';
 
 @Module({
     imports: [
@@ -25,6 +26,13 @@ import { LogsModule } from './logs/logs.module';
                     port: configService.get<number>('REDIS_PORT'),
                     password: configService.get<string>('REDIS_PASSWORD'),
                 },
+            }),
+            inject: [ConfigService],
+        }),
+        TelegrafModule.forRootAsync({
+            imports: [ConfigModule],
+            useFactory: (configService: ConfigService) => ({
+                token: configService.get('TELEGRAM_BOT_TOKEN'),
             }),
             inject: [ConfigService],
         }),

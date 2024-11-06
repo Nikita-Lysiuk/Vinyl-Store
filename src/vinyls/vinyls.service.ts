@@ -84,6 +84,21 @@ export class VinylsService {
         return vinylsResponse;
     }
 
+    async getVinyl(id: number): Promise<Vinyl> {
+        const vinyl = await this.prismaService.vinyl.findUnique({
+            where: { id },
+            include: {
+                reviews: true,
+            },
+        });
+
+        if (!vinyl) {
+            throw new HttpException('Vinyl not found', 404);
+        }
+
+        return vinyl;
+    }
+
     async createVinyl(
         createVinylRecordDto: CreateVinylRecordDto,
         coverImage: Express.Multer.File

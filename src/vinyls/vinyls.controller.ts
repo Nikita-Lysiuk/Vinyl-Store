@@ -24,6 +24,7 @@ import {
 } from './dto';
 import { Vinyl } from '@prisma/client';
 import { imageFileInterceptor } from 'src/common';
+import { TelegramInterceptor } from 'src/interceptors/telegram.interceptor';
 
 @Controller('vinyls')
 @UseFilters(HttpExceptionFilter)
@@ -43,9 +44,17 @@ export class VinylsController {
         return await this.vinylsService.searchVinyls(query);
     }
 
+    @Get(':id')
+    public async getVinyl(@Param('id') id: number): Promise<Vinyl> {
+        return await this.vinylsService.getVinyl(id);
+    }
+
     @Post()
     @Roles('ADMIN')
-    @UseInterceptors(imageFileInterceptor('coverImage'))
+    @UseInterceptors(
+        imageFileInterceptor('coverImage'),
+        TelegramInterceptor
+    )
     public async createVinyl(
         @Body() createVinylRecordDto: CreateVinylRecordDto,
         @UploadedFile() coverImage: Express.Multer.File
@@ -58,6 +67,7 @@ export class VinylsController {
 
     @Post('discogs')
     @Roles('ADMIN')
+    @UseInterceptors(TelegramInterceptor)
     public async createVinylFromDiscogs(
         @Query() query: CreateVinylRecordFromDiscogsDto,
     ): Promise<Vinyl[]> {
