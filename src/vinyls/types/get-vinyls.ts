@@ -6,4 +6,5 @@ export type GetVinyls = {
     price: number;
     firstReview?: string;
     averageScore?: number;
-}
+};
+

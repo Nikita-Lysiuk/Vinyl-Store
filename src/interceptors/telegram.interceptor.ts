@@ -42,11 +42,13 @@ export class TelegramInterceptor implements NestInterceptor {
 
     private async sendTelegramMessage(chatId: string, vinyl: Vinyl, linkToStore: string) {
         await this.bot.telegram.sendPhoto(chatId, vinyl.image, {
-            caption: `🎵 <b>New Vinyl Available!</b> 🎵\n\n<b>${vinyl.name}</b> by <i>${vinyl.authorName}</i>`,
-            parse_mode: 'HTML',
-        });
-
-        await this.bot.telegram.sendMessage(chatId, `📝 <b>Description:</b>\n${vinyl.description}\n\n💵 <b>Price:</b> $${vinyl.price}\n\n🛒 <a href="http://${linkToStore}/vinyls/${vinyl.id}">Buy Now</a>`, {
+            caption: `
+                🎵 <b>New Vinyl Available!</b> 🎵\n\n<b>
+                ${vinyl.name}</b> by <i>${vinyl.authorName}</i>\n\n
+                📝 <b>Description:</b>\n${vinyl.description}\n\n
+                💵 <b>Price:</b> $${vinyl.price}\n\n🛒 
+                <a href="http://${linkToStore}/vinyls/${vinyl.id}">Buy Now</a>
+            `,
             parse_mode: 'HTML',
         });
     }

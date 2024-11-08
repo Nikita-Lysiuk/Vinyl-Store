@@ -6,3 +6,4 @@ export type GetSearchVinyls = {
     price: number;
     image: string;
 }
+
