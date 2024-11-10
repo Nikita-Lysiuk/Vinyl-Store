@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy to Heroku
 
 on:
   push:
@@ -24,38 +24,10 @@ jobs:
     - name: Build project
       run: npm run build
 
-    - name: Deploy to server
+    - name: Deploy to Heroku
       env:
-        PORT: ${{ secrets.PORT }}
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        SHADOW_DATABASE_URL: ${{ secrets.SHADOW_DATABASE_URL }}
-        NODE_ENV: ${{ secrets.NODE_ENV }}
-        CONSUMER_KEY: ${{ secrets.CONSUMER_KEY }}
-        CONSUMER_SECRET: ${{ secrets.CONSUMER_SECRET }}
-        DISCOGS_TOKEN: ${{ secrets.DISCOGS_TOKEN }}
-        SELLER_USERNAME: ${{ secrets.SELLER_USERNAME }}
-        DISCOGS_API_URL: ${{ secrets.DISCOGS_API_URL }}
-        JWT_SECRET: ${{ secrets.JWT_SECRET }}
-        GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-        GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-        GOOGLE_CALLBACK_URL: ${{ secrets.GOOGLE_CALLBACK_URL }}
-        REDIS_HOST: ${{ secrets.REDIS_HOST }}
-        REDIS_PORT: ${{ secrets.REDIS_PORT }}
-        REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        BUCKET_NAME_S3: ${{ secrets.BUCKET_NAME_S3 }}
-        STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
-        STRIPE_SUCCESS_URL: ${{ secrets.STRIPE_SUCCESS_URL }}
-        STRIPE_CANCEL_URL: ${{ secrets.STRIPE_CANCEL_URL }}
-        STRIPE_CURRENCY: ${{ secrets.STRIPE_CURRENCY }}
-        STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-        EMAIL: ${{ secrets.EMAIL }}
-        PASSWORD: ${{ secrets.PASSWORD }}
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
-        LINK_TO_STORE: ${{ secrets.LINK_TO_STORE }}
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
       run: |
-        # Add your deployment script here
-        # For example, using rsync to copy files to your server
-        rsync -avz --delete dist/ user@yourserver:/path/to/deploy
+        git remote add heroku https://git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
+        git push heroku main
