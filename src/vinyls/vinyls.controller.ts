@@ -60,6 +60,7 @@ export class VinylsController {
     }
 
     @Get(':id')
+    @Public()
     @ApiOperation({
         summary: 'Get vinyl',
         description: 'Get vinyl by id',
