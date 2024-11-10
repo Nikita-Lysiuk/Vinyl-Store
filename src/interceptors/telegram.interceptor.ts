@@ -22,6 +22,7 @@ export class TelegramInterceptor implements NestInterceptor {
         context: ExecutionContext,
         next: CallHandler
     ): Observable<Vinyl | Vinyl[]> {
+
         return next.handle().pipe(
             mergeMap(async (data: Vinyl | Vinyl[]) => {
                 const chatId = this.configService.get('TELEGRAM_CHANNEL_ID');

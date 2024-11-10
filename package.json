@@ -15,11 +15,13 @@
         "lint": "eslint \"{src,apps,libs,test,prisma}/**/*.ts\" --fix",
         "migrate": "prisma migrate dev",
         "seed": "ts-node -r tsconfig-paths/register prisma/seed.ts",
-        "test": "jest",
+        "test": "jest --env-file .env.test",
         "test:watch": "jest --watch",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-        "test:e2e": "jest --config ./test/jest-e2e.json"
+        "test:e2e": "jest --config ./test/jest-e2e.json",
+        "prisma:migrate:test": "prisma migrate dev --name init --schema=./prisma/schema.prisma --env-file .env.test",
+        "prisma:generate:test": "prisma generate --schema=./prisma/schema.prisma --env-file .env.test"
     },
     "dependencies": {
         "@liaoliaots/nestjs-redis": "^10.0.0",
@@ -39,6 +41,7 @@
         "cookie-parser": "^1.4.7",
         "husky": "^9.1.6",
         "ioredis": "^5.4.1",
+        "jest-mock-extended": "^4.0.0-beta1",
         "nestjs-telegraf": "^2.8.1",
         "nodemailer": "^6.9.16",
         "passport": "^0.7.0",
@@ -62,6 +65,7 @@
         "@types/supertest": "^6.0.0",
         "@typescript-eslint/eslint-plugin": "^8.0.0",
         "@typescript-eslint/parser": "^8.0.0",
+        "dotenv-cli": "^7.4.2",
         "eslint": "^8.42.0",
         "eslint-config-prettier": "^9.0.0",
         "eslint-plugin-prettier": "^5.0.0",
@@ -91,6 +95,9 @@
             "**/*.(t|j)s"
         ],
         "coverageDirectory": "../coverage",
-        "testEnvironment": "node"
+        "testEnvironment": "node",
+        "moduleNameMapper": {
+            "^src/(.*)$": "<rootDir>/$1"
+        }
     }
 }

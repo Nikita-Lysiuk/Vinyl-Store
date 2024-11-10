@@ -65,7 +65,7 @@ model Review {
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int
 
-  vinyl   Vinyl @relation(fields: [vinylId], references: [id])
+  vinyl   Vinyl @relation(fields: [vinylId], references: [id], onDelete: Cascade)
   vinylId Int
 
   createdAt DateTime @default(now())

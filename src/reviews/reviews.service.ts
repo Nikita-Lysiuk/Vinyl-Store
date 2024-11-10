@@ -62,6 +62,14 @@ export class ReviewsService {
     async getReviews(vinylId: number, query: GetReviewsDto): Promise<Review[]> {
         const { limit, offset } = query;
 
+        const vinyl = await this.prismaService.vinyl.findUnique({
+            where: { id: vinylId },
+        });
+
+        if (!vinyl) {
+            throw new HttpException('Vinyl not found', 404);
+        }
+
         return await this.prismaService.review.findMany({
             take: limit,
             skip: offset,
