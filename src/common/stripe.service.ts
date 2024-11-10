@@ -32,7 +32,7 @@ export class StripeService {
                     name: item.vinyl.name,
                     images: [item.vinyl.image],
                 },
-                unit_amount: item.vinyl.price * 100,
+                unit_amount: Math.round(item.vinyl.price * 100),
             },
             quantity: item.quantity,
         }));
